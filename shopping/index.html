@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, width=device-width">
+<title>手机导购网站</title>
+<link rel="stylesheet" href="css/wap/main.css" type="text/css" />
+<link rel="stylesheet" href="js/swiper/swiper-3.4.2.min.css">
+<script type="text/javascript" src="js/swiper/jquery-3.1.1.js"></script>  
+<script type="text/javascript" src="js/swiper/swiper-3.4.2.min.js"></script>
+<style>
+.swiper-container{width:100%;}
+.swiper-pagination{width: 100px;float: right;}
+.swiper-wrapper .swiper-slide img{width:100%;}
+</style>
+</head>
+<body>
+	<div id="app">
+		<header>
+			<nav class="topBar cfx" v-show="ifSearch">
+				<div class="intro left">
+					<!-- <a class="logo" href="index.html"></a> -->
+					<a class="nav1" v-bind:href="'#home'">
+						<img src="images/home.png" />
+						<!-- <span>商品分类</span> -->
+					</a>
+				</div>
+				<h1>
+					<input class="search sIcon" type="text" 
+					v-model="search" 
+					placeholder="输入关键词搜索"  
+					v-on:keydown.enter="goSearch()" 
+					/>
+				</h1>
+				<div class="intro right">
+					<a class="nav1" v-bind:href="'#category'">
+						<img src="images/icon1.png" />
+						<!-- <span>商品分类</span> -->
+					</a>
+				</div>
+			</nav>
+			<!-- 轮播图部分 -->
+			<div class="banner">
+				<div v-show="isShow" class="swiper-container">
+		            <div class="swiper-wrapper">  
+		                <div class="swiper-slide"><img src="images/lunbo/lunbo1.jpg"></div>  
+		                <div class="swiper-slide"><img src="images/lunbo/lunbo2.jpg"></div>  
+		                <div class="swiper-slide"><img src="images/lunbo/lunbo3.jpg"></div>
+		            </div>  
+		            <!--分页器--> 
+		            <div class="swiper-pagination"></div>
+		        </div>
+	        </div>
+		<!-- 分类列表开始 -->
+		<ul v-show="isShow" class="menu">
+				<li><a href="#" >爬行垫</a></li>
+				<li><a href="#">汽车坐垫</a></li>
+				<li><a href="#">小米3</a></li>
+				<li><a href="#">滑板车</a></li>
+				<li><a href="#">乐乐鱼</a></li>
+				<li><a href="#">充气垫</a></li>
+				<li><a href="#">喜糖</a></li>
+				<li><a href="#">肉松饼</a></li>
+		</ul>
+		<!-- 分类列表结束 -->
+	</header>
+		<compoent v-bind:comp-search="sendSearch" v-bind:is="view"></compoent>
+		<div v-show="ifShow" class="go-top" v-on:click="goTop">返回顶部</div>
+		<div class="copy">
+			<p>
+				<a href="javascript:void(0);">登录</a>&nbsp;&nbsp;&nbsp;
+				<a class="ok" href="javascript:void(0);">注册</a>
+			</p>
+			<p>Copyright&nbsp;&nbsp;&nbsp;2016-2017  &copy;版权所有</p>
+		</div>
+	</div>
+	<script type="text/template" id="tpl_home">
+	<!-- 最优惠开始 -->
+	<div class="content">
+		<!-- 最优惠开始 -->
+		<h3 class="tit">
+			<img v-bind:src="mostFavo.src" />{{mostFavo.title}}
+		</h3>
+		<div class="conBuy sec">
+			<a v-for="item in mostFavo.imglist" v-bind:href="'#list'">
+				<img alt="" v-bind:src="item">
+			</a>
+			<div class="cl"></div>
+		</div>
+		<!-- 最优惠结束 -->
+		<!-- 值得买开始 -->
+		<h3 class="tit">
+			<img v-bind:src="worthBuy.src" />{{worthBuy.title}}
+		</h3>
+		<div class="conSale sec">
+			<!-- 发现实惠 -->
+			<a v-for="item in worthBuy.imglist" v-bind:href="'#list'">
+				<img v-bind:src="item" alt="" />
+			</a>
+			<div class="cl"></div>
+		</div>
+		<!-- 值得买结束 -->
+		<!-- 热门主题开始 -->
+		<h3 class="tit">
+			<img v-bind:src="topic.src" />{{topic.title}}
+		</h3>
+		<div class="icHot sec">
+			<ul>
+				<li v-for="item in items">
+					<a v-bind:href="'#goods/type/'+item.id">
+						<img v-bind:src="item.src" alt="" />
+						<h4>{{item.title}}</h4>
+						<p>{{item.description}}</p>
+					</a>
+				</li>
+			</ul>
+			<div class="cl"></div>
+		</div>
+		<!-- 热门主题结束 -->
+	</div>
+	</script>
+	<!-- 商品分类列表 -->
+	<script type="text/template" id="tpl_category">
+	<ul class="sortList">
+		<li v-for="item in list | filterBy compSearch">
+			<a v-bind:href="'#goods/type/'+item.id">
+				<span class="icon icon1">
+				<img alt="" v-bind:src="item.img" style="width:35px;height:40px"/>
+				</span>
+				<h3>{{item.title}}</h3>
+				<p>{{item.description}}</p>
+				<span class="arrow"></span>
+			</a>
+		</li>
+	</ul>
+	</script>
+	<script type="text/template" id="tpl_list">
+		<div>
+			<ul class="infoLis">
+				<li v-for="item in list | filterBy compSearch">
+					<a v-bind:href="'#detail'">
+						<h1 style="font-size: 14px">{{item.title}}</h1>
+						<div class="img">
+							<img v-bind:src="item.img" alt="">
+						</div>
+						<h2>
+							<span class="d">￥</span>{{item.price}}<span class="r">{{item.source}}</span>
+						</h2>
+						<p>{{item.description}}</p>
+					</a>
+				</li>
+			</ul>
+		</div>
+		<div class="infoPages">
+			<a href="javascript:void(0);" class="grey">上一页</a>
+			<span>1/134</span>
+			<a href="javascript:void(0);">下一页</a>
+		</div>
+	</script>
+	<script type="text/template" id="tpl_goods">
+	<div class="b5mConLis" id="mainDiv">
+		<ul class="clear-fix">
+			<li v-for="item in list | filterBy compSearch">
+				<a v-bind:href="'#detail'"> 
+					<img v-bind:src="item.img" style="height:150px"/>
+					<h3>{{item.title | subGoodsStr}}</h3>
+					<section>
+						<div class="new">
+							<span>￥<em>{{item.price}}</em></span>
+						</div>
+					</section>
+				</a>
+			</li>
+		</ul>
+	</div>
+	<div class="infoPages">
+		<a href="#goods" class="grey">上一页</a>
+		<span>1/134</span>
+		<a href="#goods">下一页</a>
+	</div>
+	</script>
+	<script type="text/template" id="tpl_detail">
+	<div class="goods">
+		<div class="goods_detail">
+	        <div class="intro left">
+	            <a href="#goods"><img src="images/go-back.png" alt=""></a>
+	        </div>
+	        <h1>商品详情</h1>
+	         <div class="intro right">
+	            <a href="javascript:void(0);"><img src="images/shopping.png" alt=""></a>
+	            <a href="javascript:void(0);"><img src="images/more.png" alt=""></a>
+	        </div>
+	    </div>
+		<div class="contain">
+			<div class="tp_detail">
+	        <div class="swiper-container lunbo">
+	            <div class="swiper-wrapper">  
+	                <div class="swiper-slide"><img src="images/dt/dt1.jpg"></div>  
+	                <div class="swiper-slide"><img src="images/dt/dt2.jpg"></div>  
+	                <div class="swiper-slide"><img src="images/dt/dt3.jpg"></div>
+	                <div class="swiper-slide"><img src="images/dt/dt4.jpg"></div>  
+	            </div> 
+	            <div class="swiper-pagination"></div> 
+	        </div>
+	    </div>
+	        <!-- 基本信息 -->
+	        <div class="primary-info">
+	        	<h2>{{data.title}}</h2>
+	        	<p>{{data.description}}</p>
+	        	<p class="info-price">
+		        	<span class="now">{{data.price | filterPrice}}</span>
+		        	<span class="market">{{data.orignPrice | filterPrice}}</span>
+		        	<span class="discount">{{data.discount}}折</span>
+		        </p>
+		        <p class="info-other">
+	        		<span class="item">全国包邮</span>
+	        		<span class="item">销量 {{data.storeNum}}</span>
+	        	</p>
+	        </div>
+		</div>
+		<div class="detail-wrap">
+			<span class="left">累计评价 158</span>
+			<span class="right">
+				更多<i class="arrow"></i>
+			</span>
+		</div>
+		<div class="rates-list">
+        <ul>
+            <li class="rates-item">
+                <div class="rate-user">
+                    <a href="javascript:void(0);" class="user-info">
+                        <img src="images/head/head1.jpg" alt="" class="logo">
+                        <span>天空***的星</span>
+                    </a>
+                </div>
+                <p>哇塞。裙子好好看哦，特别是袖子，真的很有创意哦，布料也挺好的。穿起来也棒棒哒哇</p>
+                <p>
+                    <span>2017-03-29</span>
+                    <span>颜色:白色</span>
+                    <span>尺码:XS</span>
+                </p>
+                <img src="images/head/pj1.jpg" alt="">
+                <img src="images/head/pj2.jpg" alt="">
+                <img src="images/head/pj3.jpg" alt="">
+            </li>
+            <li class="rates-item">
+                <div class="rate-user">
+                    <a href="javascript:void(0);" class="user-info">
+                        <img src="images/head/head2.jpg" alt="" class="logo">
+                        <span>北***啦啦</span>
+                    </a>
+                </div>
+                <p>哇塞。裙子好好看哦，特别是袖子，真的很有创意哦，布料也挺好的。穿起来也棒棒哒哇</p>
+                <p>
+                    <span>2017-03-29</span>
+                    <span>颜色:白色</span>
+                    <span>尺码:XS</span>
+                </p>
+                <img src="images/head/pj1.jpg" alt="">
+                <img src="images/head/pj2.jpg" alt="">
+                <img src="images/head/pj3.jpg" alt="">
+            </li>
+        </ul>
+    </div>
+    <!-- 商品详情 -->
+    <div class="detail-content">
+        <nav class="tabpanel-tabs">
+            <li class="tab-item active">
+                <span>图文详情</span><i></i>
+            </li>
+            <li class="tab-item">
+                <span>商品参数</span><i></i>
+            </li>
+            <li class="tab-item">
+                <span>热卖推荐</span><i></i>
+            </li>
+        </nav>
+        <div class="tabpanel-text show">
+            <p>图文详情</p>
+            <p>【杭州正版】厂家直销，质量保证！一分钱一分货，决定产品价格的不是我们，是品质，市场拼的永远不是价格，而是价值。</p>
+            <p>我们不能给您便宜的价格，但是我们能给你更好的品质和不一样的人生，你若高贵一切便宜，你若便宜一切高贵。</p>
+            <p>穿着效果</p>
+            <p><img src="images/head/shuoming.jpg" alt=""></p>
+            <p><img src="images/head/xiaoguo.jpg" alt=""></p>
+        </div>
+        <div class="tabpanel-text">
+            <p>商品参数</p>
+            <table> 
+                <tbody>  
+                    <tr>
+                        <td>尺码</td>
+                        <td>S</td>
+                        <td>L</td>
+                        <td>M</td>
+                    </tr>
+                    <tr>
+                        <td>裙长</td>
+                        <td>87</td>
+                        <td>89</td>
+                        <td>88</td>
+                    </tr>
+                    <tr>
+                        <td>肩宽</td>
+                        <td>37</td>
+                        <td>39</td>
+                        <td>38</td>
+                    </tr>
+                    <tr>
+                        <td>胸围</td>
+                        <td>94</td>
+                        <td>102</td>
+                        <td>98</td>
+                    </tr>
+                    <tr>
+                        <td>袖长</td>
+                        <td>25</td>
+                        <td>27</td>
+                        <td>26</td>
+                    </tr>  
+                </tbody> 
+            </table> 
+        </div>
+        <div class="tabpanel-text">
+            <p>热卖推荐</p>
+            <p>【杭州正版】厂家直销，质量保证！一分钱一分货，决定产品价格的不是我们，是品质，市场拼的永远不是价格，而是价值。</p>
+            <p>我们不能给您便宜的价格，但是我们能给你更好的品质和不一样的人生，你若高贵一切便宜，你若便宜一切高贵。</p>
+        </div>
+    </div>
+	</div>
+	</script>
+<script type="text/javascript" src="js/sea.js"></script>
+<script type="text/javascript" src="js/lib/seajs-css.js"></script>
+<script type="text/javascript" src="js/lib/seajs-preload.js"></script>
+<script type="text/javascript">
+// 预加载vue
+seajs.config({
+	preload:['lib/vue']
+});
+seajs.use('bootstrap');
+</script>
+</body>
+</html>
